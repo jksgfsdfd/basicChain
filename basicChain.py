@@ -2,6 +2,7 @@
 
 import datetime
 import hashlib
+import json
 
 class Blockchain:
     def __init__(self):
@@ -29,3 +30,24 @@ class Blockchain:
             else:
                 new_proof +=1
         return new_proof
+    
+    def hash(self,block):
+        encoded_block=json.dumps(block,sort_keys=True).encode()
+        hashval=hashlib.sha256(encoded_block).hexdigest()
+        return hashval
+    
+    def is_chain_valid(self,chain):
+        prev_block=chain[0]
+        block_index=1
+        while block_index < len(chain):
+            block=chain[block_index]
+            proof=block['proof']
+            prev_proof=prev_block['proof']
+            hash_value=hashlib.sha256(str(proof**2 - prev_proof**2).encode()).hexdigest()
+            if hash_value[:4]!='0000':
+                return False
+            if block['prev_hash']!=hash(prev_block):
+                return False
+            prev_block=block
+            block_index += 1
+        return True 
