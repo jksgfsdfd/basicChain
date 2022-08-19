@@ -3,6 +3,10 @@
 import datetime
 import hashlib
 import json
+import flask
+from flask import Flask,requests,jsonify
+
+#blockchain class
 
 class Blockchain:
     def __init__(self):
@@ -51,3 +55,25 @@ class Blockchain:
             prev_block=block
             block_index += 1
         return True 
+
+#create web app
+app = Flask(__name__)
+
+#create blockchain
+blockchain1 = Blockchain()
+
+#mining a new block
+@app.route('/mine_block', methods=['GET'])
+def mine_block():
+    prev_block=blockchain1.get_prev_block()
+    prev_proof=prev_block['proof']
+    proof=blockchain1.proof_of_work(prev_proof)
+    prev_hash=blockchain1.hash(prev_block)
+    block=blockchain1.create_block(proof, prev_hash)
+    respone={'message':'Congratulations you have jsut mined a new block',
+             'index':block['index'],
+             'timestamp':block['timestamp'],
+             'proof':block['proof'],
+             'prev_hash':block['prev_hash']}
+    return jsonify(respone) , 200
+
